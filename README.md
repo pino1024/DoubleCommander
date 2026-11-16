@@ -12,7 +12,7 @@
 
 ## 优化改动点
 
-只修改了 4 个源码文件，共 36 行新增、10 行删除。
+共修改 6 个源码文件，161 行新增、16 行删除（相对于基线 `b33d3b3`，不含本 README）。
 
 | 序号 | 改动 | 文件 |
 |---|---|---|
@@ -21,7 +21,13 @@
 | 3 | 目录名默认不再加方括号，例如 `[掉落]` 显示为 `掉落`。选项里的"目录名加方括号"开关仍然可用 | `src/uglobs.pas`（`gDirBrackets` 默认值改为 `False`） |
 | 4 | 放大文件页签：字体 12，标签高度 32，更容易点中 | `src/ufileviewnotebook.pas`（构造函数） |
 | 5 | 放大盘符栏：字体 12，按钮高度改为图标大小 + 14 | `src/fmain.pas` |
-| 6 | 选中的页签更醒目：浅蓝底色、顶部 3 像素深蓝强调条、粗体文字。仅在 Windows 亮色模式、页签在顶部时生效，深色模式不受影响 | `src/ufileviewnotebook.pas`（`PaintWindow`） |
+| 6 | 选中的页签更醒目：浅蓝底色加顶部 3 像素深蓝强调条，文字不加粗。仅在 Windows 亮色模式、页签在顶部时生效，深色模式不受影响 | `src/ufileviewnotebook.pas`（`PaintWindow`） |
+| 7 | 路径栏字体默认从 10 号放大到 12 号，与页签、盘符栏一致 | `src/uglobs.pas`（`dcfPathEdit` 默认字号） |
+| 8 | 盘符栏后追加"桌面、下载、文档"三个按钮，带系统文件夹图标。路径取自 Windows 已知文件夹，移动过位置也能正确跳转。界面语言为中文时显示中文名，否则显示 `Desktop`、`Downloads`、`Documents`。左盘符栏作用于左面板，右盘符栏作用于右面板。仅 Windows 生效 | `src/fmain.pas`（`AddCommonFolderButtons`），新增类型 `TKASFolderItem` 在 `src/ukastoolitemsextended.pas` |
+| 9 | 路径行不再随活动面板变成选中的深蓝色，固定为白底黑字。点击进入编辑时，输入框变为浅蓝底，与选中页签同色 | `src/fileviews/ufileviewheader.pas`（`SetActive`、`PathLabelSetColor`、`ShowPathEdit`） |
+| 10 | 路径行上下各画一条灰色分隔线，使页签行、路径行、文件列表之间界线清楚 | `src/upathlabel.pas`（`Paint`） |
+
+第 9 项的副作用：路径行未激活时的颜色固定为系统的"窗口白"和"窗口文字色"，"选项 → 颜色 → 路径"里对应的未激活颜色设置不再生效。
 
 ### 只改配置、未改源码的项
 
@@ -38,8 +44,10 @@
 ### 验证情况
 
 - 以上改动都在 Windows 上用 Lazarus 4.0 / FPC 3.2.2 编译通过，程序能正常启动、响应正常。
-- 第 6 项（选中页签配色）作者没有拿到界面截图确认，颜色和文字位置如果不合适，可以改 `PaintWindow` 里的 `RGBToColor` 取值。
-- 其他平台（Linux、macOS）没有测试。
+- 第 6、8、9、10 项在 Windows 上截取程序窗口确认过显示效果。第 10 项的分隔线只有 1 像素，主要靠第 9 项的白色底色来区分页签行。
+- 选中页签的颜色可以改 `PaintWindow` 里的 `RGBToColor` 取值。
+- 第 8 项在非 Windows 平台是空实现，不会出现这三个按钮。
+- Linux、macOS 没有编译和测试。
 
 ## 构建（Windows）
 

@@ -74,6 +74,15 @@ type
     function ConfigNodeName: String; override;
   end;
 
+  { TKASFolderItem }
+
+  TKASFolderItem = class(TKASNormalItem)
+    Path: String;
+    procedure Assign(OtherItem: TKASToolItem); override;
+    function Clone: TKASToolItem; override;
+    function ConfigNodeName: String; override;
+  end;
+
   TKASToolBarIniLoader = class;
   TOnLoadIniItem = procedure (Loader: TKASToolBarIniLoader; var Item: TKASToolItem; const Shortcut: String) of object;
   TOnOpenIniFile = function (FileName: String): TIniFile of object;
@@ -109,6 +118,7 @@ const
   CommandItemConfigNode = 'Command';
   ProgramItemConfigNode = 'Program';
   DriveItemConfigNode   = 'Drive';
+  FolderItemConfigNode  = 'Folder';
 
 { TKASDriveItem }
 
@@ -133,6 +143,26 @@ end;
 function TKASDriveItem.ConfigNodeName: String;
 begin
   Result := DriveItemConfigNode;
+end;
+
+{ TKASFolderItem }
+
+procedure TKASFolderItem.Assign(OtherItem: TKASToolItem);
+begin
+  inherited Assign(OtherItem);
+  if OtherItem is TKASFolderItem then
+    Path := TKASFolderItem(OtherItem).Path;
+end;
+
+function TKASFolderItem.Clone: TKASToolItem;
+begin
+  Result := TKASFolderItem.Create;
+  Result.Assign(Self);
+end;
+
+function TKASFolderItem.ConfigNodeName: String;
+begin
+  Result := FolderItemConfigNode;
 end;
 
 { TKASCommandItem }

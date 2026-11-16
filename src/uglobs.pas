@@ -1957,7 +1957,7 @@ begin
   gFonts[dcfConsole].MaxValue := 200;
 
   gFonts[dcfPathEdit].Name := 'default';
-  gFonts[dcfPathEdit].Size := 10;
+  gFonts[dcfPathEdit].Size := 12;
   gFonts[dcfPathEdit].Style := [];
   gFonts[dcfPathEdit].Quality := fqDefault;
   gFonts[dcfPathEdit].MinValue := 6;

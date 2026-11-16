@@ -608,7 +608,7 @@ begin
       ACanvas.FillRect(Classes.Rect(ARect.Left, ARect.Top, ARect.Right, ARect.Top + ScaleY(3, 96)));
       ACanvas.Brush.Style:= bsClear;
       ACanvas.Font.Assign(Font);
-      ACanvas.Font.Style:= [fsBold];
+      ACanvas.Font.Style:= [];
       ACanvas.Font.Color:= clBlack;
       TextRect:= ARect;
       Inc(TextRect.Top, ScaleY(3, 96));

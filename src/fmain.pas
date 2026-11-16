@@ -809,6 +809,9 @@ type
     procedure ToolbarExecuteProgram(ToolItem: TKASToolItem);
     procedure LeftDriveBarExecuteDrive(ToolItem: TKASToolItem);
     procedure RightDriveBarExecuteDrive(ToolItem: TKASToolItem);
+    procedure LeftDriveBarExecuteFolder(ToolItem: TKASToolItem);
+    procedure RightDriveBarExecuteFolder(ToolItem: TKASToolItem);
+    procedure AddCommonFolderButtons(dskPanel: TKASToolBar);
     procedure SetDragCursor(Shift: TShiftState);
     {$IFDEF DARWIN}
     procedure GlobalMacOSKeyDownHandler(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -979,7 +982,7 @@ uses
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
   uColumnsFileView, dmHigh, uFileSourceOperationMisc
 {$IFDEF MSWINDOWS}
-  , uShellFileSource, uNetworkThread
+  , uShellFileSource, uNetworkThread, uShellFolder
 {$ENDIF}
 {$IFDEF DARWIN}
   , uCocoaModernFormConfig
@@ -5127,6 +5130,8 @@ begin
   end;
   dskLeft.AddToolItemExecutor(TKASDriveItem, @LeftDriveBarExecuteDrive);
   dskRight.AddToolItemExecutor(TKASDriveItem, @RightDriveBarExecuteDrive);
+  dskLeft.AddToolItemExecutor(TKASFolderItem, @LeftDriveBarExecuteFolder);
+  dskRight.AddToolItemExecutor(TKASFolderItem, @RightDriveBarExecuteFolder);
 
   if gSeparateTree and Assigned(ShellTreeView) then
   begin
@@ -5215,6 +5220,10 @@ begin
       {/Set Buttons Transparent}
       Button.Layout := blGlyphLeft;
     end; // for
+
+    {$IFDEF MSWINDOWS}
+    AddCommonFolderButtons(dskPanel);
+    {$ENDIF}
 
     // Add special buttons
     if not gDrivesListButton then
@@ -6971,6 +6980,77 @@ begin
   else
     Panel := ActiveNotebook.Side;
   SetPanelDrive(Panel, DriveItem.Drive, True);
+end;
+
+{$IFDEF MSWINDOWS}
+function GetUserDefaultUILanguage: Word; stdcall; external 'kernel32.dll';
+
+procedure TfrmMain.AddCommonFolderButtons(dskPanel: TKASToolBar);
+const
+  FOLDERID_Desktop: TGUID = '{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}';
+  FOLDERID_Documents: TGUID = '{FDD39AD0-238F-46AF-ADB4-6C85480369C7}';
+var
+  IsChinese: Boolean;
+
+  procedure AddFolder(const AFolderId: TGUID; const ACaption, AChinese: String);
+  var
+    APath: String;
+    Bitmap: Graphics.TBitmap;
+    Button: TKASToolButton;
+    ToolItem: TKASFolderItem;
+  begin
+    if not GetKnownFolderPath(AFolderId, APath) then Exit;
+    if not mbDirectoryExists(APath) then Exit;
+
+    ToolItem := TKASFolderItem.Create;
+    ToolItem.Path := APath;
+    if IsChinese then
+      ToolItem.Text := AChinese
+    else
+      ToolItem.Text := ACaption;
+    ToolItem.Hint := APath;
+    Button := dskPanel.AddButton(ToolItem);
+
+    Bitmap := PixMapManager.LoadBitmapEnhanced(APath, dskPanel.GlyphSize, True, clBtnFace, nil);
+    if Assigned(Bitmap) then
+    begin
+      Button.Glyph := Bitmap;
+      Button.Glyph.Transparent := True;
+    end;
+    Button.Transparent := True;
+    Button.Layout := blGlyphLeft;
+  end;
+
+begin
+  IsChinese := (GetUserDefaultUILanguage and $3FF) = $04;
+  AddFolder(FOLDERID_Desktop, 'Desktop', '桌面');
+  AddFolder(FOLDERID_Downloads, 'Downloads', '下载');
+  AddFolder(FOLDERID_Documents, 'Documents', '文档');
+end;
+{$ELSE}
+procedure TfrmMain.AddCommonFolderButtons(dskPanel: TKASToolBar);
+begin
+end;
+{$ENDIF}
+
+procedure TfrmMain.LeftDriveBarExecuteFolder(ToolItem: TKASToolItem);
+begin
+  SetFileSystemPath(FrameLeft, (ToolItem as TKASFolderItem).Path);
+  if tb_activate_panel_on_click in gDirTabOptions then
+    SetActiveFrame(FrameLeft);
+end;
+
+procedure TfrmMain.RightDriveBarExecuteFolder(ToolItem: TKASToolItem);
+var
+  FileView: TFileView;
+begin
+  if gDriveBar2 then
+    FileView := FrameRight
+  else
+    FileView := ActiveFrame;
+  SetFileSystemPath(FileView, (ToolItem as TKASFolderItem).Path);
+  if tb_activate_panel_on_click in gDirTabOptions then
+    SetActiveFrame(FileView);
 end;
 
 procedure TfrmMain.ShowTrayIcon(bShow: Boolean);

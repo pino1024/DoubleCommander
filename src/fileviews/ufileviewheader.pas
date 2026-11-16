@@ -238,8 +238,8 @@ begin
   begin
     APathLabel.ActiveColor:= ActiveColor;
     APathLabel.ActiveFontColor:= ActiveFontColor;
-    APathLabel.InactiveColor:= InactiveColor;
-    APathLabel.InactiveFontColor:= InactiveFontColor;
+    APathLabel.InactiveColor:= clWindow;
+    APathLabel.InactiveFontColor:= clWindowText;
   end;
 end;
 
@@ -393,6 +393,8 @@ begin
   with FPathLabel do
   begin
     FPathEdit.SetBounds(Left, Top, Width, Height);
+    FPathEdit.Color := RGBToColor(204, 228, 255);
+    FPathEdit.Font.Color := clBlack;
     FPathEdit.Text := FFileView.CurrentPath;
     FPathEdit.Visible := True;
     FPathEdit.SetFocus;
@@ -401,8 +403,10 @@ end;
 
 procedure TFileViewHeader.SetActive(bActive: Boolean);
 begin
-  FAddressLabel.SetActive(bActive);
-  FPathLabel.SetActive(bActive);
+  // Path rows keep the neutral (inactive) colors; only the edit box
+  // is highlighted while it has the focus (see ShowPathEdit).
+  FAddressLabel.SetActive(False);
+  FPathLabel.SetActive(False);
 end;
 
 { TFileViewFixedHeader }

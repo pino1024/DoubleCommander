@@ -132,6 +132,11 @@ begin
   Canvas.FillRect(0, 0, Width, Height); // background
   Canvas.TextOut(LeftSpacing, TextTop, Text); // path
 
+  // Separator lines above and below, to divide from the tab row and the file list.
+  Canvas.Pen.Color := clBtnShadow;
+  Canvas.Line(0, 0, Width, 0);
+  Canvas.Line(0, Height - 1, Width, Height - 1);
+
   // Highlight part of the path if mouse is over it.
   if FHighlightStartPos <> -1 then
   begin
