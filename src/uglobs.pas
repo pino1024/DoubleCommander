@@ -2183,7 +2183,7 @@ begin
   gShowCurDirTitleBar := False;
   gShowWarningMessages := True;
   gSpaceMovesDown := False;
-  gDirBrackets := True;
+  gDirBrackets := False;
   gInplaceRename := False;
   gInplaceRenameButton := True;
   gDblClickToParent := False;

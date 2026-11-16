@@ -129,7 +129,7 @@ begin
     FFileView.SetActiveFile(dirNameToSelect);
   end
   else
-    tmViewHistoryMenu.Enabled:=TRUE; //Let's start timer. If it's a double-click, we'll abort timer otherwise we'll show history as before but 250ms later.
+    ShowPathEdit;
 end;
 
 procedure TFileViewHeader.tmViewHistoryMenuTimer(Sender: TObject);
@@ -186,7 +186,8 @@ begin
 
     mbRight:
       begin
-        ShowPathEdit;
+        FFileView.SetFocus;
+        frmMain.Commands.cm_ViewHistory([]);
       end;
   end;
 end;

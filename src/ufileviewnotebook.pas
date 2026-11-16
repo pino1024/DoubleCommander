@@ -440,6 +440,9 @@ begin
   FNotebookSide := NotebookSide;
   FStartDrag := False;
 
+  Font.Size := 12;
+  TabHeight := 32;
+
   OnShowHint := @TabShowHint;
 
   {$IFDEF MSWINDOWS}
@@ -583,18 +586,38 @@ end;
 {$IF DEFINED(LCLWIN32)}
 procedure TFileViewNotebook.PaintWindow(DC: HDC);
 var
-  ARect: TRect;
+  ARect, TextRect: TRect;
+  ACanvas: TCanvas;
+  ACaption: String;
 begin
   inherited PaintWindow(DC);
 {$IF DEFINED(DARKWIN)}
   if g_darkModeEnabled then Exit;
 {$ENDIF}
-  if (Win32MajorVersion >= 10) and (PageIndex > -1) then
+  if (PageIndex > -1) and (TabPosition = tpTop) then
   begin
     ARect:= TabRect(PageIndex);
-    IntersectClipRect(DC, ARect.Left, ARect.Top, ARect.Right, ARect.Top + ScaleY(3, 96));
-    InflateRect(ARect, ScaleX(8, 96), 0);
-    DrawThemeBackground(TWin32ThemeServices(ThemeServices).Theme[teToolBar], DC, TP_BUTTON, TS_CHECKED, ARect, nil);
+    ACaption:= Page[PageIndex].Caption;
+    ACanvas:= TCanvas.Create;
+    try
+      ACanvas.Handle:= DC;
+      ACanvas.Brush.Style:= bsSolid;
+      ACanvas.Brush.Color:= RGBToColor(204, 228, 255);
+      ACanvas.FillRect(ARect);
+      ACanvas.Brush.Color:= RGBToColor(0, 120, 215);
+      ACanvas.FillRect(Classes.Rect(ARect.Left, ARect.Top, ARect.Right, ARect.Top + ScaleY(3, 96)));
+      ACanvas.Brush.Style:= bsClear;
+      ACanvas.Font.Assign(Font);
+      ACanvas.Font.Style:= [fsBold];
+      ACanvas.Font.Color:= clBlack;
+      TextRect:= ARect;
+      Inc(TextRect.Top, ScaleY(3, 96));
+      ACanvas.TextRect(TextRect, TextRect.Left + ScaleX(8, 96),
+        TextRect.Top + (TextRect.Bottom - TextRect.Top - ACanvas.TextHeight(ACaption)) div 2, ACaption);
+    finally
+      ACanvas.Handle:= 0;
+      ACanvas.Free;
+    end;
   end;
 end;
 {$ENDIF}

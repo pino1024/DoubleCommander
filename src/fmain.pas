@@ -5728,10 +5728,12 @@ begin
     pnlDiskResize(pnlDisk);
     pnlRightResize(pnlRight);
 
+    dskLeft.Font.Size:= 12;
+    dskRight.Font.Size:= 12;
     dskLeft.GlyphSize:= gDiskIconsSize;
     dskRight.GlyphSize:= gDiskIconsSize;
-    dskLeft.ButtonHeight:= gDiskIconsSize + 6;
-    dskRight.ButtonHeight:= gDiskIconsSize + 6;
+    dskLeft.ButtonHeight:= gDiskIconsSize + 14;
+    dskRight.ButtonHeight:= gDiskIconsSize + 14;
 
     pnlDiskLeftInner.Visible := gHorizontalFilePanels and gDriveBar1 and gDriveBar2;
     pnlDiskRightInner.Visible := gHorizontalFilePanels and gDriveBar1 and gDriveBar2;
