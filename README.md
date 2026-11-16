@@ -12,42 +12,28 @@
 
 ## 优化改动点
 
-共修改 6 个源码文件，161 行新增、16 行删除（相对于基线 `b33d3b3`，不含本 README）。
+共改动 6 个源码文件（相对基线 `b33d3b3`：161 行新增、16 行删除），按主题归纳如下：
 
-| 序号 | 改动 | 文件 |
-|---|---|---|
-| 1 | 单击路径栏直接进入路径编辑状态，可以粘贴路径后回车跳转。原来单击会弹出历史菜单。点击路径中的某一级子目录，仍然是跳到那一级 | `src/fileviews/ufileviewheader.pas`（`PathLabelClick`） |
-| 2 | 右键点击路径栏弹出历史目录菜单。原来右键是进入编辑。中键仍然是目录热点列表 | `src/fileviews/ufileviewheader.pas`（`PathLabelMouseUp`） |
-| 3 | 目录名默认不再加方括号，例如 `[掉落]` 显示为 `掉落`。选项里的"目录名加方括号"开关仍然可用 | `src/uglobs.pas`（`gDirBrackets` 默认值改为 `False`） |
-| 4 | 放大文件页签：字体 12，标签高度 32，更容易点中 | `src/ufileviewnotebook.pas`（构造函数） |
-| 5 | 放大盘符栏：字体 12，按钮高度改为图标大小 + 14 | `src/fmain.pas` |
-| 6 | 选中的页签更醒目：浅蓝底色加顶部 3 像素深蓝强调条，文字不加粗。仅在 Windows 亮色模式、页签在顶部时生效，深色模式不受影响 | `src/ufileviewnotebook.pas`（`PaintWindow`） |
-| 7 | 路径栏字体默认从 10 号放大到 12 号，与页签、盘符栏一致 | `src/uglobs.pas`（`dcfPathEdit` 默认字号） |
-| 8 | 盘符栏后追加"桌面、下载、文档"三个按钮，带系统文件夹图标。路径取自 Windows 已知文件夹，移动过位置也能正确跳转。界面语言为中文时显示中文名，否则显示 `Desktop`、`Downloads`、`Documents`。左盘符栏作用于左面板，右盘符栏作用于右面板。仅 Windows 生效 | `src/fmain.pas`（`AddCommonFolderButtons`），新增类型 `TKASFolderItem` 在 `src/ukastoolitemsextended.pas` |
-| 9 | 路径行不再随活动面板变成选中的深蓝色，固定为白底黑字。点击进入编辑时，输入框变为浅蓝底，与选中页签同色 | `src/fileviews/ufileviewheader.pas`（`SetActive`、`PathLabelSetColor`、`ShowPathEdit`） |
-| 10 | 路径行上下各画一条灰色分隔线，使页签行、路径行、文件列表之间界线清楚 | `src/upathlabel.pas`（`Paint`） |
+1. **快速跳转目录**
+   - 单击路径栏直接进入编辑，可粘贴路径后回车；右键弹出历史目录菜单。
+   - 盘符栏后新增"桌面、下载、文档"三个带图标的按钮（仅 Windows）。
+2. **界面放大，更易点击**：页签、盘符栏、路径栏字体统一放大到 12 号，页签和盘符按钮也相应加高。
+3. **当前页签更醒目**：选中的页签用浅蓝底色加顶部蓝条标出（仅 Windows 亮色模式）。
+4. **路径行更清晰**：路径行不再随活动面板变成深蓝色，改为白底，上下加分隔线，与页签行、文件列表分开；点击编辑时才显示浅蓝底。
+5. **目录名不再带方括号**：`[掉落]` 显示为 `掉落`，选项里的开关仍可重新打开。
 
-第 9 项的副作用：路径行未激活时的颜色固定为系统的"窗口白"和"窗口文字色"，"选项 → 颜色 → 路径"里对应的未激活颜色设置不再生效。
+涉及文件：`fmain.pas`、`ufileviewheader.pas`、`ufileviewnotebook.pas`、`upathlabel.pas`、`uglobs.pas`、`ukastoolitemsextended.pas`（均在 `src/` 下）。
 
-### 只改配置、未改源码的项
+注意：路径行未激活颜色改为固定值后，"选项 → 颜色 → 路径"中对应的未激活颜色设置不再生效。
 
-"盘符与剩余空间那一行"的显示，是用户配置里的选项，没有改源码。要去掉这一行，在 `%APPDATA%\doublecmd\doublecmd.xml` 里设置：
+### 可选配置
 
-```xml
-<DrivesListButton Enabled="False">
-...
-<DriveFreeSpace>False</DriveFreeSpace>
-```
-
-也可以在"配置 → 选项 → 布局"里取消对应勾选。顶部的盘符按钮条不受影响。
+要去掉盘符旁的"剩余空间"那一行，可在"配置 → 选项 → 布局"取消对应勾选，或在 `%APPDATA%\doublecmd\doublecmd.xml` 中设置 `DrivesListButton Enabled="False"` 和 `DriveFreeSpace` 为 `False`。顶部盘符按钮条不受影响。
 
 ### 验证情况
 
-- 以上改动都在 Windows 上用 Lazarus 4.0 / FPC 3.2.2 编译通过，程序能正常启动、响应正常。
-- 第 6、8、9、10 项在 Windows 上截取程序窗口确认过显示效果。第 10 项的分隔线只有 1 像素，主要靠第 9 项的白色底色来区分页签行。
-- 选中页签的颜色可以改 `PaintWindow` 里的 `RGBToColor` 取值。
-- 第 8 项在非 Windows 平台是空实现，不会出现这三个按钮。
-- Linux、macOS 没有编译和测试。
+仅在 Windows 上用 Lazarus 4.0 / FPC 3.2.2 编译，界面效果截图确认过。Linux、macOS 未编译、未测试。
+
 
 ## 构建（Windows）
 
